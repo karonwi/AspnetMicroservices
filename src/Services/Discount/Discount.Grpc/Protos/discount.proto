@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option csharp_namespace = "Discount.Grpc.Protos";
+//designing the grpc api for the services
+
+//service similar to controllers in api
+service DiscountProtoService
+{
+	//this are endpoints in the api controller
+	rpc GetDiscount (GetDiscountRequest) returns (CouponModel);
+
+	rpc CreateDiscount(CreateDiscountRequest) returns (CouponModel);
+
+	rpc UpdateDiscount(UpdateDiscountRequest) returns (CouponModel);
+
+	rpc DeleteDiscount(DeleteDiscountRequest) returns (DeleteDiscountResponse);
+}
+
+//defining the complex types 
+message GetDiscountRequest
+{
+	//we use 1 because rpc classes has to be ordered
+	string productName = 1;
+}
+
+message CouponModel
+{
+	int32 id = 1;
+	string productName = 2;
+	string description = 3;
+	int32 amount = 4;
+}
+
+message CreateDiscountRequest
+{
+	CouponModel coupon = 1;
+}
+
+message UpdateDiscountRequest
+{
+	CouponModel coupon = 1;
+}
+
+message DeleteDiscountRequest
+{
+	string productName = 1;
+}
+
+message DeleteDiscountResponse
+{
+	bool success = 1;
+}
