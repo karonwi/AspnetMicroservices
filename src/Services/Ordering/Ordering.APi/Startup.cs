@@ -1,3 +1,5 @@
+using EventBus.Messages.Commons;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Ordering.APi.EventBusConsumer;
 using Ordering.Application;
 using Ordering.Infrastructure;
 using System;
@@ -33,6 +36,23 @@ namespace Ordering.APi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.APi", Version = "v1" });
+            });
+            services.AddAutoMapper(typeof(Startup));
+            services.AddScoped<BasketCheckoutConsumer>();
+            //MassTransit-RabbitMq Configuration
+            services.AddMassTransit(config =>
+            {
+                config.AddConsumer<BasketCheckoutConsumer>();
+                config.UsingRabbitMq((ctx, cfg) =>
+                {
+                    //the connection string of the rabbitmq
+                    cfg.Host(Configuration["HostAddress"]);
+                    //provides the subscribing of the checkout event
+                    cfg.ReceiveEndpoint(EventBusConstants.BasketCheckoutQueue, c =>
+                    {
+                        c.ConfigureConsumer<BasketCheckoutConsumer>(ctx);
+                    });
+                });
             });
         }
 
